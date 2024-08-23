@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Request, Depends
-from requests import Session
+from fastapi import APIRouter, Request
+from fastapi.params import Depends
+from sqlalchemy.orm import Session
 from starlette.responses import HTMLResponse, RedirectResponse
 from starlette.templating import Jinja2Templates
 
@@ -14,7 +15,7 @@ templates = Jinja2Templates(directory='views/templates')
 async def list(req: Request, db: Session = Depends(get_db)):
     try:
         bdlist = BoardService.select_board(db)
-        print(bdlist)
+        # print(bdlist)
         return templates.TemplateResponse('board/list.html', {'request': req, 'bdlist': bdlist})
 
     except Exception as ex:
