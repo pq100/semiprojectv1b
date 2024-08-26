@@ -11,7 +11,7 @@ from starlette.templating import Jinja2Templates
 
 from app.dbfactory import get_db
 from app.schema.gallery import NewGallery
-from app.service.GalleryService import get_gallery_data, process_upload
+from app.service.gallery import get_gallery_data, process_upload
 
 gallery_router = APIRouter()
 templates = Jinja2Templates(directory='views/templates')
