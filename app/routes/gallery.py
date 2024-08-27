@@ -48,6 +48,16 @@ async def write(req: Request, gallery: NewGallery = Depends(get_gallery_data),
         print(f'writeok 오류 발생 {str(ex)}')
         return RedirectResponse('/member/error', 303)
 
-@gallery_router.get('/view', response_class=HTMLResponse)
-async def view(req: Request):
-    return templates.TemplateResponse('gallery/view.html', {'request': req})
+@gallery_router.get('/view/{gno}', response_class=HTMLResponse)
+async def view(req: Request, gno: int, db: Session = Depends(get_db)):
+    try:
+        rs1, rs2 = GalleryService.selectone_gallery(gno, db)
+
+
+
+        return templates.TemplateResponse('gallery/view.html',
+                                          {'request': req, '': rs1, 'galattach': rs2})
+
+    except Exception as ex:
+        print(f'view 오류 발생 {str(ex)}')
+        return RedirectResponse('/member/error', 303)
