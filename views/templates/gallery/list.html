@@ -29,71 +29,27 @@
 <main>
     <h2>갤러리 본문보기</h2>
     <table>
-        <colgroup>
-            <col style="width: 10%">
-            <col>
-            <col style="width: 15%">
-            <col style="width: 15%">
-            <col style="width: 10%">
-        </colgroup>
         <thead>
-        <tr><td colspan="3"><select name="findtype" id="findtype">
-            <option value="title">제 목</option>
-            <option value="userid">작성자</option>
-            <option value="contents">본 문</option>
-            <option value="titcont">제목+본문</option>
-        </select>
-            <input type="text" name="search" id="search">
-            <button type="button" id="findbtn">검색하기</button></td>
-            <td colspan="2"><button type="button" id="writebtn" onclick="location.href='/gallery/write'">글쓰기</button></td></tr>
-        <tr><th>번호</th><th>제목</th><th>작성자</th>
-            <th>작성일</th><th>조회</th></tr>
+        <div class="row" style="width: 888px; margin: 0 auto;">
+            {% for ga in galist %}
+            <div class="col-10 card m-1" style="width: 18rem">
+                <a href="/gallery/view/1">
+                    <img src="http://127.0.0.1/cdn/img/{{ ga.fname }}"
+                         class="card-img-top" alt="..."></a><!-- 이미지 -->
+                <div class="card-body">
+                    <h5 class="card-title">제목</h5>
+                    <div><span>{{ ga.userid }}</span>
+                        <span>{{ ga.regdate }}</span></div>
+                    <div>
+                        <span><i class="bi bi-eye"></i> {{ ga.views }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
         </thead>
         <tbody>
-        <tr><td>1</td><td><a href="/gallery/view?bid=1">시간은 금이라구, 친구!</a></td>
-            <td>zzyzzy</td><td>2024.07.30</td><td>123</td></tr>
-        <tr><td>1</td><td> 시간은 금이라구, 친구! 시간은 금이라구, 친구! 시간은 금이라구, 친구! 시간은 금이라구, 친구! 시간은 금이라구, 친구! 시간은 금이라구, 친구! 시간은 금이라구, 친구! 시간은 금이라구, 친구! 시간은 금이라구, 친구! 시간은 금이라구, 친구! 시간은 금이라구, 친구!</td>
-            <td>zzyzzy</td><td>2024.07.30</td><td>123</td></tr>
-        <tr><td>1</td><td>시간은 금이라구, 친구!</td>
-            <td>zzyzzy</td><td>2024.07.30</td><td>123</td></tr>
-        <tr><td>1</td><td>시간은 금이라구, 친구!</td>
-            <td>zzyzzy</td><td>2024.07.30</td><td>123</td></tr>
-        <tr><td>1</td><td>시간은 금이라구, 친구!</td>
-            <td>zzyzzy</td><td>2024.07.30</td><td>123</td></tr>
-        <tr><td>1</td><td>시간은 금이라구, 친구!</td>
-            <td>zzyzzy</td><td>2024.07.30</td><td>123</td></tr>
-        <tr><td>1</td><td>시간은 금이라구, 친구!</td>
-            <td>zzyzzy</td><td>2024.07.30</td><td>123</td></tr>
-        <tr><td>1</td><td>시간은 금이라구, 친구!</td>
-            <td>zzyzzy</td><td>2024.07.30</td><td>123</td></tr>
-        <tr><td>1</td><td>시간은 금이라구, 친구!</td>
-            <td>zzyzzy</td><td>2024.07.30</td><td>123</td></tr>
-        <tr><td>1</td><td>시간은 금이라구, 친구!</td>
-            <td>zzyzzy</td><td>2024.07.30</td><td>123</td></tr>
-        <tr><td>1</td><td>시간은 금이라구, 친구!</td>
-            <td>zzyzzy</td><td>2024.07.30</td><td>123</td></tr>
-        <tr><td>1</td><td>시간은 금이라구, 친구!</td>
-            <td>zzyzzy</td><td>2024.07.30</td><td>123</td></tr>
-        <tr><td>1</td><td>시간은 금이라구, 친구!</td>
-            <td>zzyzzy</td><td>2024.07.30</td><td>123</td></tr>
-        <tr><td>1</td><td>시간은 금이라구, 친구!</td>
-            <td>zzyzzy</td><td>2024.07.30</td><td>123</td></tr>
-        <tr><td>1</td><td>시간은 금이라구, 친구!</td>
-            <td>zzyzzy</td><td>2024.07.30</td><td>123</td></tr>
-        <tr><td>1</td><td>시간은 금이라구, 친구!</td>
-            <td>zzyzzy</td><td>2024.07.30</td><td>123</td></tr>
-        <tr><td>1</td><td>시간은 금이라구, 친구!</td>
-            <td>zzyzzy</td><td>2024.07.30</td><td>123</td></tr>
-        <tr><td>1</td><td>시간은 금이라구, 친구!</td>
-            <td>zzyzzy</td><td>2024.07.30</td><td>123</td></tr>
-        <tr><td>1</td><td>시간은 금이라구, 친구!</td>
-            <td>zzyzzy</td><td>2024.07.30</td><td>123</td></tr>
-        <tr><td>1</td><td>시간은 금이라구, 친구!</td>
-            <td>zzyzzy</td><td>2024.07.30</td><td>123</td></tr>
-        <tr><td>1</td><td>시간은 금이라구, 친구!</td>
-            <td>zzyzzy</td><td>2024.07.30</td><td>123</td></tr>
-        <tr><td>1</td><td>시간은 금이라구, 친구!</td>
-            <td>zzyzzy</td><td>2024.07.30</td><td>123</td></tr>
+
         </tbody>
     </table>
     <div class="pagnation">
