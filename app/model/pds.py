@@ -27,7 +27,7 @@ class PdsAttach(Base):
     fname: Mapped[str] = mapped_column(nullable=False)
     fsize: Mapped[int] = mapped_column(default=0)
     regdate: Mapped[datetime] = mapped_column(default=datetime.now)
-    pds = relationship('Pds', back_populates='pdsattachs')    # 하나의 attach는 하나의 pds에 속함 (1:1)
+    pds = relationship('Pds', back_populates='attachs')    # 하나의 attach는 하나의 pds에 속함 (1:1)
 
 
 
