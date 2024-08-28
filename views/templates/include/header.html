@@ -2,7 +2,7 @@
 <nav><ul class="nav nav-fill">
     <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
 
-    {% if 'logined_uid' not in request.session %}
+    {% if 'logined_uid' not in request. Session %}
     <li class="nav-item"><a class="nav-link" href="/member/join">회원가입</a></li>
     <li class="nav-item"><a class="nav-link" href="/member/login">로그인</a></li>
     {% else %}
@@ -12,6 +12,7 @@
 
     <li class="nav-item"><a class="nav-link" href="/board/list/1">게시판</a></li>
     <li class="nav-item"><a class="nav-link" href="/gallery/list/1">갤러리</a></li>
+    <li class="nav-item"><a class="nav-link" href="/pds/list/1">자료실</a></li>
     <li class="nav-item"><a class="nav-link" href="/member/myinfo">회원정보</a></li>
 </ul>
     <hr>
