@@ -1,5 +1,6 @@
-from sqlalchemy import select, or_
+from sqlalchemy import select, or_, update
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import joinedload, contains_eager
 
 from app.model.board import Board
 
@@ -54,10 +55,22 @@ class BoardService:
     @staticmethod
     def selectone_board(bno, db):
         try:
-            stmt = select(Board).where(Board.bno == bno)
+            # 본문글에 대한 조회수 증가
+            # update board set views = views + 1
+            # where bno = ?
+            stmt = update(Board).where(Board.bno == bno) \
+                .values(views = Board.views + 1)
+            db.execute(stmt)
+
+            # 본문글 + 댓글 읽어오기
+            stmt = select(Board).options(joinedload(Board.replys)) \
+                .where(Board.bno == bno)
+
             result = db.execute(stmt).scalars().first()
 
+            db.commit()
             return result
 
         except SQLAlchemyError as ex:
             print(f'▶▶▶ selectone_board 오류발생 : {str(ex)}')
+            db.rollback()
