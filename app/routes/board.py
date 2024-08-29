@@ -31,15 +31,14 @@ templates = Jinja2Templates(directory='views/templates')
 # cpg = 23: 21 22 23 24 25 26 27
 # stpgb = ((cpg - 1) / 10) * 10 + 1
 
-
 # 게시판 댓글 처리 : reply
 # 댓글번호   댓글내용    작성자     작성일    부모글번호   부모댓글번호
-# 1         헬로우염      123abc  20210611    100      1
-# 4       왜영어로인사...  xyz987  20210611    100      1
-# 2         방가방가     abc123  20210611    100       2
-# 3         안녕하세요    xyz987  20210611    100      3
-#
+# 1         헬로우염    123abc   20210611    100      1
+# 4       왜영어로인사...  xyz987  20210611   100      1
+# 2         방가방가    abc123   20210611    100      2
+# 3         안녕하세요  xyz987   20210611     100      3
 # => 댓글 출력 순서는 부모글번호로 추려낸후 부모댓글번호로 정렬
+
 
 @board_router.get('/list/{cpg}', response_class=HTMLResponse)
 async def list(req: Request, cpg: int, db: Session = Depends(get_db)):
@@ -77,5 +76,12 @@ async def write(req: Request):
 
 
 @board_router.get('/view/{bno}', response_class=HTMLResponse)
-async def view(req: Request):
-    return templates.TemplateResponse('board/view.html', {'request': req})
+async def view(req: Request, bno: int, db: Session = Depends(get_db)):
+    try:
+        boards = BoardService.selectone_board(bno, db)
+        return templates.TemplateResponse('board/view.html',
+                                          {'request': req, 'boards': boards})
+
+    except Exception as ex:
+        print(f'▷▷▷ view 오류 발생 : {str(ex)}')
+        return RedirectResponse(url='/member/error', status_code=303)
