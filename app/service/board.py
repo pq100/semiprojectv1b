@@ -51,7 +51,6 @@ class BoardService:
             print(f'▶▶▶ find_select_board 오류발생 : {str(ex)}')
 
 
-
     @staticmethod
     def selectone_board(bno, db):
         try:
@@ -61,4 +60,4 @@ class BoardService:
             return result
 
         except SQLAlchemyError as ex:
-            print(f'▶▶▶ select_board 오류발생 : {str(ex)}')
+            print(f'▶▶▶ selectone_board 오류발생 : {str(ex)}')
