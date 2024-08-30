@@ -68,7 +68,7 @@
     <div class="pagnation">
         <ul>
             {% if cpg > 1 %}
-            <li><a href="/board/list/{{ cpg - 1 }}">이전</a></li>
+            <li><a href="{{ baseurl }}{{ cpg - 1 }}">이전</a></li>
             {% else %}
             <li>이전</li>
             {% endif %}
@@ -84,7 +84,7 @@
             {% endfor %}
 
             {% if cpg < allpage %}  {# 현재 페이지가 allpage보다 작으면 링크 다음 출력 #}
-            <li><a href="/board/list/{{ cpg + 1 }}">다음</a></li></ul>
+            <li><a href="{{ baseurl }}{{ cpg + 1 }}">다음</a></li></ul>
             {% else %}
             <li>다음</li>
             {% endif %}
