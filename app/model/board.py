@@ -12,7 +12,7 @@ class Board(Base):
     bno: Mapped[int] = mapped_column(primary_key=True, autoincrement=True, index=True)
     title: Mapped[str] = mapped_column(String(100), index=True)
     userid: Mapped[str] = mapped_column(String(18), ForeignKey('member.userid'), index=True)
-    regdate: Mapped[datetime] = mapped_column(String(100), efault=datetime.now)
+    regdate: Mapped[datetime] = mapped_column(String(100), default=datetime.now)
     views: Mapped[int] = mapped_column(default=0)
     contents: Mapped[str]
     replys = relationship('Reply', back_populates='board')
