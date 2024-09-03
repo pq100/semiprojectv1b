@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.model.base import Base
@@ -11,8 +11,8 @@ class Pds(Base):
     __tablename__ = 'pds'
 
     pno: Mapped[int] = mapped_column(primary_key=True, autoincrement=True, index=True)
-    title: Mapped[str] = mapped_column(index=True)
-    userid: Mapped[str] = mapped_column(ForeignKey('member.userid'), index=True)
+    title: Mapped[str] = mapped_column(String(200), index=True)
+    userid: Mapped[str] = mapped_column(String(18), ForeignKey('member.userid'), index=True)
     regdate: Mapped[datetime] = mapped_column(default=datetime.now)
     views: Mapped[int] = mapped_column(default=0)
     contents: Mapped[str]
@@ -23,8 +23,8 @@ class PdsAttach(Base):
     __tablename__ = 'pdsattach'
 
     pano: Mapped[int] = mapped_column(primary_key=True, autoincrement=True, index=True)
-    pno: Mapped[int] = mapped_column(ForeignKey('pds.pno'), index=True)
-    fname: Mapped[str] = mapped_column(nullable=False)
+    pno: Mapped[int] = mapped_column(String(250), ForeignKey('pds.pno'), index=True)
+    fname: Mapped[str] = mapped_column(String(18), nullable=False)
     fsize: Mapped[int] = mapped_column(default=0)
     regdate: Mapped[datetime] = mapped_column(default=datetime.now)
     pds = relationship('Pds', back_populates='attachs')    # 하나의 attach는 하나의 pds에 속함 (1:1)
