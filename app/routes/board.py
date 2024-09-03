@@ -1,89 +1,117 @@
-from fastapi import APIRouter, Depends
+from math import ceil
+
+from fastapi import APIRouter, Request
+from fastapi.params import Depends
 from sqlalchemy.orm import Session
-from starlette.requests import Request
 from starlette.responses import HTMLResponse, RedirectResponse
 from starlette.templating import Jinja2Templates
 
 from app.dbfactory import get_db
-from app.schema.member import NewMember
-from app.service.member import MemberService
+from app.schema.board import NewReply
+from app.service.board import BoardService
 
-member_router = APIRouter()
+board_router = APIRouter()
 templates = Jinja2Templates(directory='views/templates')
 
-@member_router.get('/join', response_class=HTMLResponse)
-async def join(req: Request):
-    return templates.TemplateResponse('member/join.html', {'request': req})
+# 페이징 알고리즘
+# 페이지당 게시글 수 : 25
+# 1page : 1 ~ 25
+# 2page : 26 ~ 50
+# 3page : 51 ~ 75
+# ...
+# npage : (n - 1) * 25 + 1 ~ (n - 1) * 25 + 25
 
-@member_router.post('/join', response_class=HTMLResponse)
-async def joinok(member: NewMember, db: Session = Depends(get_db)):
+# 페이지네이션 알고리즘
+# 현재페이지에 따라 보여줄 페이지 블록 결정
+# ex) 총 페이지수 : 27일때
+# => select count(bno) 총게시글수, ceil(count(bno)/25) 총페이지수 from board;
+
+# cpg = 1: 1 2 3 4 5 6 7 8 9 10
+# cpg = 3: 1 2 3 4 5 6 7 8 9 10
+# cpg = 9: 1 2 3 4 5 6 7 8 9 10
+# cpg = 11: 11 12 13 14 15 16 17 18 19 20
+# cpg = 17: 11 12 13 14 15 16 17 18 19 20
+# cpg = 23: 21 22 23 24 25 26 27
+# stpgb = ((cpg - 1) / 10) * 10 + 1
+
+# 게시판 댓글 처리 : reply
+# 댓글번호   댓글내용    작성자     작성일    부모글번호   부모댓글번호
+# 1         헬로우염    123abc   20210611    100      1
+# 4       왜영어로인사...  xyz987  20210611   100      1
+# 2         방가방가    abc123   20210611    100      2
+# 3         안녕하세요  xyz987   20210611     100     3
+
+# => 댓글 출력 순서는 부모글번호로 추려낸후 부모댓글번호로 정렬
+
+
+@board_router.get('/list/{cpg}', response_class=HTMLResponse)
+async def list(req: Request, cpg: int, db: Session = Depends(get_db)):
     try:
-        if MemberService.check_captcha(member):
-            print(member)
-            result = MemberService.insert_member(db, member)
-            print('처리결과 : ', result.rowcount)
-
-            if result.rowcount > 0:  # 회원가입이 성공적으로 완료되면
-                return RedirectResponse(url='/member/login', status_code=303)
-        else:
-            return RedirectResponse(url='/member/error', status_code=303)
-
+        stpgb = int((cpg - 1) / 10) * 10 + 1
+        bdlist, cnt = BoardService.select_board(db, cpg)
+        allpage = ceil(cnt / 25)   # 총 페이지수
+        return templates.TemplateResponse('board/list.html',
+                                          {'request': req, 'bdlist': bdlist, 'cpg': cpg, 'stpgb': stpgb, 'allpage': allpage, 'baseurl': '/board/list'})
 
     except Exception as ex:
-        print(f'▷▷▷ joinok 오류 발생 : {str(ex)}')
+        print(f'▷▷▷ list 오류 발생 : {str(ex)}')
         return RedirectResponse(url='/member/error', status_code=303)
 
 
-@member_router.get('/login', response_class=HTMLResponse)
-async def login(req: Request):
-    return templates.TemplateResponse('member/login.html', {'request': req})
-
-
-@member_router.post('/login', response_class=HTMLResponse)
-async def loginok(req: Request, db: Session = Depends(get_db)):
-    data = await req.json()  # 클라이언트가 보낸 데이터를 request 객체로 받음
+@board_router.get('/list/{ftype}/{fkey}/{cpg}', response_class=HTMLResponse)
+async def find(req: Request, ftype: str, fkey: str,
+               cpg: int, db: Session = Depends(get_db)):
     try:
-        print('전송한 데이터 : ', data)
-        redirect_url = '/member/loginfail' # 로그인 실패시 loginfail 로 이동
-
-        if MemberService.login_member(db, data): # 로그인 성공시
-            req.session['logined_uid'] = data.get('userid')  # 세션에 아이디 저장하고
-            redirect_url = '/member/myinfo'  # myinfo 로 이동
-
-        return RedirectResponse(url=redirect_url, status_code=303)
+        stpgb = int((cpg - 1) / 10) * 10 + 1
+        bdlist, cnt = BoardService.find_select_board(db, ftype, '%'+fkey+'%', cpg)
+        allpage = ceil(cnt / 25)
+        return templates.TemplateResponse('board/list.html',
+                                          {'request': req, 'bdlist': bdlist, 'cpg': cpg, 'stpgb': stpgb, 'allpage': allpage,'baseurl': f'/board/list/{ftype}/{fkey}/'})
 
     except Exception as ex:
-        print(f'▷▷▷ loginok 오류 : {str(ex)}')
+        print(f'▷▷▷ find 오류 발생 : {str(ex)}')
         return RedirectResponse(url='/member/error', status_code=303)
 
 
-@member_router.get('/logout', response_class=HTMLResponse)
-async def error(req: Request):
-    req.session.clear()   # 생성된 세션객체 제거
-    return RedirectResponse('/', status_code=303)
+@board_router.get('/write', response_class=HTMLResponse)
+async def write(req: Request):
+    if 'logined_uid' not in req.session: # 로그인하지 않으면 글쓰기 금지!
+        return RedirectResponse('/member/login', 303)
+
+    return templates.TemplateResponse('board/write.html', {'request': req})
 
 
-@member_router.get('/myinfo', response_class=HTMLResponse)
-async def myinfo(req: Request, db: Session = Depends(get_db)):
+@board_router.get('/view/{bno}', response_class=HTMLResponse)
+async def view(req: Request, bno: int, db: Session = Depends(get_db)):
     try:
-        if 'logined_uid' not in req.session:  # 로그인하지 않았다면
-            return RedirectResponse(url='/member/login', status_code=303)
-
-        # 로그인 했다면 아이디로 회원정보 조회 후 myinfo에 출력
-        myinfo = MemberService.selectone_member(db, req.session['logined_uid'])
-        print('--> ', myinfo)
-        return templates.TemplateResponse('member/myinfo.html', {'request': req, 'myinfo': myinfo})
+        boards = BoardService.selectone_board(bno, db)
+        return templates.TemplateResponse('board/view.html',
+                                          {'request': req, 'boards': boards})
 
     except Exception as ex:
-        print(f'▷▷▷ myinfo 오류 발생 : {str(ex)}')
+        print(f'▷▷▷ view 오류 발생 : {str(ex)}')
         return RedirectResponse(url='/member/error', status_code=303)
 
 
-@member_router.get('/error', response_class=HTMLResponse)
-async def error(req: Request):
-    return templates.TemplateResponse('member/error.html', {'request': req})
+
+@board_router.post('/reply', response_class=HTMLResponse)
+async def replyok(reply: NewReply, db: Session = Depends(get_db)):
+    try:
+        if BoardService.insert_board(db, reply):
+            return RedirectResponse(f'/board/view/{reply.bno}', status_code=303)
+
+    except Exception as ex:
+        print(f'▷▷▷ replyok 오류 발생 : {str(ex)}')
+        return RedirectResponse(url='/member/error', status_code=303)
 
 
-@member_router.get('/loginfail', response_class=HTMLResponse)
-async def loginfail(req: Request):
-    return templates.TemplateResponse('member/loginfail.html', {'request': req})
+
+@board_router.post('/rreply', response_class=HTMLResponse)
+async def rreplyok(reply: NewReply, db: Session = Depends(get_db)):
+    try:
+        if BoardService.insert_rreply(db, reply):
+            return RedirectResponse(f'/board/view/{reply.bno}', status_code=303)
+
+    except Exception as ex:
+        print(f'▷▷▷ rreplyok 오류 발생 : {str(ex)}')
+        return RedirectResponse(url='/member/error ', status_code=303)
