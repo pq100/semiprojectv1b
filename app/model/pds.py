@@ -25,8 +25,8 @@ class PdsAttach(Base):
     pano: Mapped[int] = mapped_column(primary_key=True, autoincrement=True, index=True)
     pno: Mapped[int] = mapped_column(String(250), ForeignKey('pds.pno'), index=True)
     fname: Mapped[str] = mapped_column(String(18), nullable=False)
-    fsize: Mapped[int] = mapped_column(default=0)
-    regdate: Mapped[datetime] = mapped_column(default=datetime.now)
+    fsize: Mapped[int] = mapped_column(default=0, nullable=False)
+    regdate: Mapped[datetime] = mapped_column(default=datetime.now, nullable=False)
     pds = relationship('Pds', back_populates='attachs')    # 하나의 attach는 하나의 pds에 속함 (1:1)
 
 
