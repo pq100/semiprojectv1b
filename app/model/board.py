@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.model.base import Base
@@ -14,7 +14,7 @@ class Board(Base):
     userid: Mapped[str] = mapped_column(String(18), ForeignKey('member.userid'), index=True)
     regdate: Mapped[datetime] = mapped_column(String(100), default=datetime.now)
     views: Mapped[int] = mapped_column(default=0)
-    contents: Mapped[str]
+    contents: Mapped[str] = mapped_column(Text)
     replys = relationship('Reply', back_populates='board')
 
 
