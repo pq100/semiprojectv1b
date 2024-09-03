@@ -59,7 +59,7 @@ async def mp3play(pno: int, db: Session = Depends(get_db)):
     # pip install aiofiles
     async def iterfile():
         async with aiofiles.open(file_path, 'rb') as f:
-            while chunk := await f.read(64 * 1024): # 64k chunk
+            while chunk := await f.read(64 * 1024):     # 64k chunk
                 yield chunk
 
     return StreamingResponse(iterfile(), media_type='audio/mp3')
